@@ -21,12 +21,13 @@ struct asiento {//estrutura de asiento
 	long cedula;
 };
 
-void cargarArreglo();
-void cargarArregloAsiento ();
-void guardarArreglo();
-void guardarArregloAsiento();
-
-
+void cargarArreglo(datos usuario[]);
+void cargarArregloAsiento (asiento asiento[]);
+void guardarArreglo(datos usuario[]);
+void guardarArregloAsiento(asiento asiento[]);
+void subrayar();
+void menuPrincipal(datos usuario[], asiento asiento[]);
+int recibirTipoDatoEntero(int& num);
 
 
 
@@ -106,3 +107,70 @@ void subrayar() {
 	cout<<"-------------------------------------------\n";
 }//subrayar
 
+main() {
+	datos usuario[10000];
+	asiento asiento[10000];
+	cargarArreglo(usuario);
+	cargarArregloAsiento(asiento);
+	
+	//Aquí va el código del programa
+	
+	guardarArreglo(usuario);
+	guardarArregloAsiento(asiento);
+	return 0;
+}
+
+void menuPrincipal(datos usuario[], asiento asiento[]) {
+	int opcion;
+	do {
+		system("cls");
+		subrayar();
+		cout<<"        MENU PRINCIPAL        \n";
+		subrayar();
+		cout<<"1. Registrar usuario\n";
+		cout<<"2. Reservar asiento\n";
+		cout<<"3. Cancelar reserva\n";
+		cout<<"4. Ver usuarios registrados\n";
+		cout<<"5. Ver asientos disponibles\n";
+		cout<<"6. Salir\n";
+		subrayar();
+		cout<<"Ingrese una opcion: ";
+		cin>>opcion;
+		
+		switch(opcion) {
+			case 1:
+				//Registrar usuario
+				break;
+			case 2:
+				//Reservar asiento
+				break;
+			case 3:
+				//Cancelar reserva
+				break;
+			case 4:
+				//Ver usuarios registrados
+				break;
+			case 5:
+				//Ver asientos disponibles
+				break;
+			case 6:
+				cout<<"Saliendo del programa...\n";
+				break;
+			default:
+				cout<<"Opcion invalida. Intente de nuevo.\n";
+				getch();
+		}
+	} while(opcion != 6);
+	
+}
+
+int recibirTipoDatoEntero(int& num) {
+	while (cin.fail()) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout<<"Ingrese un dato valido"<<endl;
+		cin>>num;
+		teclaPresionada();
+	}//while
+	return num;
+}//Funcion validar datos tipo enteros
