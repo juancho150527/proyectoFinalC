@@ -102,4 +102,7 @@ void guardarArregloAsiento(asiento asiento[]){
 	archivo.close();
 }//Guardar el arreglo asiento
 
+void subrayar() {
+	cout<<"-------------------------------------------\n";
+}//subrayar
 
