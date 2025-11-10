@@ -38,6 +38,18 @@ void validarNombre(string& nombre);
 int guardar(datos dato[], datos nuevoUsuario);
 bool validarCapacidadVuelo(int nVuelo, datos dato[], int maxAsientos);
 int vueloExiste(datos dato[]);
+int[] asientosDisponibles(int nVuelo, datos dato[]);
+int[] asientosOcupados(int nVuelo, datos dato[]);
+void cancelarViaje(datos dato[]);
+void consutas_reportes(datos dato[], int nVuelo);
+void cantAsientosDisponibles(int nVuelo, datos dato[]);
+void cantAsientosDisponiblesvariosVuelos(datos dato[]);
+void cantAsientosOcupados(int nVuelo, datos dato[]);
+void cantAsientosOcupadosvariosVuelos(datos dato[]);
+void asientosDispEspecificos(datos dato[]);
+void asientosOcpEspecificos(datos dato[]);
+void consultarDatosAsiento(datos dato[], int nVuelo);
+
 
 void colorTexto(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
@@ -127,7 +139,7 @@ int main() {
 	return 0;
 }
 
-void menuPrincipal(datos dato[]) {
+void menuPrincipal(datos dato[], int nVuelo) {
 	int opcion;
 	do {
 		system("cls");
@@ -136,10 +148,9 @@ void menuPrincipal(datos dato[]) {
 		subrayar();
 		cout<<"1. Reservar vuelo\n";
 		cout<<"2. Cancelar reserva\n";
-		cout<<"3. \n";
-		cout<<"4. Ver datos registrados\n";
-		cout<<"5. Ver asientos disponibles\n";
-		cout<<"6. Salir\n";
+		cout<<"3. consultas y reportes\n";
+		cout<<"4. busqueda avanzada\n";
+		cout<<"5. salir\n";
 		subrayar();
 		cout<<"Ingrese una opcion: ";
 		cin>>opcion;
@@ -153,22 +164,19 @@ void menuPrincipal(datos dato[]) {
 				cancelarViaje(dato);
 				break;
 			case 3:
-				//Cancelar reserva
+				consutas_reportes(dato, nVuelo);
 				break;
 			case 4:
-				//Ver datos registrados
+				busquedaAvanzada(dato);
 				break;
 			case 5:
-				//Ver asientos disponibles
-				break;
-			case 6:
 				cout<<"Saliendo del programa...\n";
 				break;
 			default:
 				cout<<"Opcion invalida. Intente de nuevo.\n";
 				getch();
 		}
-	} while(opcion != 6);
+	} while(opcion != 5);
 	
 }
 
@@ -424,7 +432,20 @@ int[] asientosDisponibles(int nVuelo, datos dato[]) {
 		}
 	}
 	return asientos;
-} 
+}
+
+int[] asientosOcupados(int nVuelo, datos dato[]) {
+	int asientos[150];
+	for (int i = 0; i < 150; ++i) {
+		asientos[i] = 0; // Inicializa con 0 indicando no ocupado
+	}
+	for (int i = 0; i < 10000; ++i) {
+		if (dato[i].nVuelo == nVuelo && !dato[i].libre) {
+			asientos[i] = i + 1; // ocupados
+		}
+	}
+	return asientos;
+}
 
 void cancelarViaje(datos dato[]) {
 	long cedula;
@@ -449,16 +470,20 @@ void cancelarViaje(datos dato[]) {
 	}
 }
 
-void consutas_reportes(datos dato[]) {
+void consutas_reportes(datos dato[], int nVuelo) {
 	int opcion;
 	do {
 		system("cls");
 		subrayar();
 		cout<<"        CONSULTAS Y REPORTES        \n";
 		subrayar();
-		cout<<"1. Ver datos registrados\n";
-		cout<<"2. Ver asientos disponibles\n";
-		cout<<"3. Volver al menu principal\n";
+		cout<<"1. ver la cantidad de asientos disponibles por vuelo\n";
+		cout<<"2. ver la cantidad de asientos ocupados por vuelo\n";
+		cout<<"3. ver los asientos disponibles de un vuelo especifico\n";
+		cout<<"4. ver los asientos ocupados de un vuelo especifico\n";
+		cout<<"5. consultar datos de un asiento\n";
+		cout<<"6. listar pasajeros de un vuelo\n";
+		cout<<"7. volver al menu principal\n";
 		subrayar();
 		cout<<"Ingrese una opcion: ";
 		cin>>opcion;
@@ -466,10 +491,159 @@ void consutas_reportes(datos dato[]) {
 		
 		switch(opcion) {
 			case 1:
-				//Ver datos registrados
+				cantAsientosDisponiblesvariosVuelos(dato);
 				break;
 			case 2:
-				//Ver asientos disponibles
+				cantAsientosOcupadosvariosVuelos(dato);
+				break;
+			case 3:
+				asientosDispEspecificos(dato);
+				break;
+			case 4:
+				asientosOcpEspecificos(dato);
+				break;
+			case 5:
+				consultarDatosAsiento(dato, nVuelo);
+				break;
+			case 6:
+				listarPasajeros(dato);
+				break;
+			case 7:
+				cout<<"Volviendo al menu principal...\n";
+				break;
+			default:
+				cout<<"Opcion invalida. Intente de nuevo.\n";
+				getch();
+		}
+	} while(opcion != 7);
+}
+
+void cantAsientosDisponibles(int nVuelo, datos dato[]) {
+	int contador = 0;
+	for (int i=0; i<10000; i++) {
+		if (dato[i].nVuelo==nVuelo && dato[i].libre) {
+			contador+=1;
+		}//if
+	}//for
+	cout<<"Cantidad de asientos disponibles en el vuelo "<<nVuelo<<": "<<contador<<"\n";
+}
+
+void cantAsientosDisponiblesvariosVuelos(datos dato[]) {
+	for (int i=0; i<10; i++) {
+		int nVuelo = 1000+i+1;
+		cantAsientosDisponibles(nVuelo, dato);
+	}//for
+}
+
+void cantAsientosOcupados(int nVuelo, datos dato[]) {
+	int contador = 0;
+	for (int i=0; i<10000; i++) {
+		if (dato[i].nVuelo==nVuelo && !dato[i].libre) {
+			contador+=1;
+		}//if
+	}//for
+	cout<<"Cantidad de asientos ocupados en el vuelo "<<nVuelo<<": "<<contador<<"\n";
+}
+
+void cantAsientosOcupadosvariosVuelos(datos dato[]) {
+	for (int i=0; i<10; i++) {
+		int nVuelo = 1000+i+1;
+		cantAsientosOcupados(nVuelo, dato);
+	}//for
+}
+
+void asientosDispEspecificos(datos dato[]) {
+	cout<<"Ingrese el numero de vuelo para ver los asientos disponibles: ";
+	int nVuelo;
+	receibirTipoDatoEntero(nVuelo);
+	system("cls");
+	int asientosDisponibles[150] = asientosDisponibles(nVuelo, dato);
+	for (int i = 0; i < 150; ++i) {
+		if (asientosDisponibles[i] > 0 && asientosDisponibles[i] <= 150) {
+			cout << "Asiento disponible: " << asientosDisponibles[i] << endl;
+		}
+	}
+}
+
+void asientosOcpEspecificos(datos dato[]) {
+	cout<<"Ingrese el numero de vuelo para ver los asientos ocupados: ";
+	int nVuelo;
+	receibirTipoDatoEntero(nVuelo);
+	system("cls");
+	int asientosOcupados[150] = asientosOcupados(nVuelo, dato);
+	for (int i = 0; i < 150; ++i) {
+		if (asientosOcupados[i] > 0 && asientosOcupados[i] <= 150) {
+			cout << "Asiento ocupado: " << asientosOcupados[i] << endl;
+		}
+	}
+}
+
+void consultarDatosAsiento(datos dato[], int nVuelo) {
+	int nAsiento;
+	pantallaCentrada("Consultar Datos de Asiento", 160);
+	cout << "Ingrese el numero de asiento: ";
+	receibirTipoDatoEntero(nAsiento);
+	int indice = nVuelo * 150 + (nAsiento - 1); // Calcular el índice basado en nVuelo y nAsiento
+	if (indice == 0) {
+		cout << "Cedula no encontrada. No se puede consultar los datos del asiento.\n";
+		return;
+	} else {
+		cout << "Datos del Asiento:\n";
+		cout << "Nombre: " << dato[indice].nombre << endl;
+		cout << "Edad: " << dato[indice].edad << endl;
+		cout << "Sexo: " << dato[indice].sexo << endl;
+		cout << "Cedula: " << dato[indice].cedula << endl;
+		cout << "Email: " << dato[indice].email << endl;
+		cout << "Telefono: " << dato[indice].telefono << endl;
+		cout << "Numero de Vuelo: " << dato[indice].nVuelo << endl;
+		cout << "Numero de Asiento: " << dato[indice].nAsiento << endl;
+	}
+}
+
+void listarPasajeros(datos dato[]) {
+	pantallaCentrada("Lista de Pasajeros", 160);
+	int nVuelo;
+	cout << "Ingrese el numero de vuelo para listar los pasajeros: ";
+	receibirTipoDatoEntero(nVuelo);
+	system("cls");
+	cout << "Pasajeros en el vuelo " << nVuelo << ":\n";
+	subrayar();
+	cout << "Nombre\tEdad\tSexo\tCedula\tEmail\tTelefono\tAsiento\n";
+	subrayar();
+	for (int i = 0; i < 10000; ++i) {
+		if (dato[i].nVuelo == nVuelo && !dato[i].libre) {
+			cout << dato[i].nombre << "\t"
+				 << dato[i].edad << "\t"
+				 << dato[i].sexo << "\t"
+				 << dato[i].cedula << "\t"
+				 << dato[i].email << "\t"
+				 << dato[i].telefono << "\t"
+				 << dato[i].nAsiento << "\n";
+		}
+	}
+}
+
+void busquedaAvanzada(datos dato[]) {
+	int opcion;
+	do {
+		system("cls");
+		subrayar();
+		cout<<"        busqueda avanzada        \n";
+		subrayar();
+		cout<<"1. buscar por cedula\n";
+		cout<<"2. buscar por nombre\n";
+		cout<<"3. volver al menu principal\n";
+		subrayar();
+		cout<<"Ingrese una opcion: ";
+		cin>>opcion;
+		teclaPresionada();
+		
+		switch(opcion) {
+			case 1:
+				busquedaPorCedula(dato);
+				break;
+			case 2:
+				busquedaPorNombre(dato);
 				break;
 			case 3:
 				cout<<"Volviendo al menu principal...\n";
@@ -479,4 +653,51 @@ void consutas_reportes(datos dato[]) {
 				getch();
 		}
 	} while(opcion != 3);
+}
+
+void busquedaPorCedula(datos dato[]) {
+	long cedula;
+	pantallaCentrada("Busqueda por Cedula", 160);
+	cout << "Ingrese la cedula a buscar: ";
+	receibirTipoDatoLong(cedula);
+	int indice = buscarCedula(cedula, dato);
+	if (indice == 0) {
+		cout << "Cedula no encontrada.\n";
+		return;
+	} else {
+		cout << "Datos del Pasajero:\n";
+		cout << "Nombre: " << dato[indice].nombre << endl;
+		cout << "Edad: " << dato[indice].edad << endl;
+		cout << "Sexo: " << dato[indice].sexo << endl;
+		cout << "Cedula: " << dato[indice].cedula << endl;
+		cout << "Email: " << dato[indice].email << endl;
+		cout << "Telefono: " << dato[indice].telefono << endl;
+		cout << "Numero de Vuelo: " << dato[indice].nVuelo << endl;
+		cout << "Numero de Asiento: " << dato[indice].nAsiento << endl;
+	}
+}
+
+void busquedaPorNombre(datos dato[]) {
+	string nombre;
+	pantallaCentrada("Busqueda por Nombre", 160);
+	cout << "Ingrese el nombre a buscar: ";
+	receibirTipoDatoString(nombre);
+	bool encontrado = false;
+	cout << "Nombre\tEdad\tSexo\tCedula\tEmail\tTelefono\tAsiento\n";
+	for (int i = 0; i < 10000; ++i) {
+		if (dato[i].nombre.contains(nombre)) {
+			encontrado = true;
+			cout << "Datos del Pasajero:\n";
+			cout << dato[i].nombre << "\t"
+				 << dato[i].edad << "\t"
+				 << dato[i].sexo << "\t"
+				 << dato[i].cedula << "\t"
+				 << dato[i].email << "\t"
+				 << dato[i].telefono << "\t"
+				 << dato[i].nAsiento << "\n";
+		}
+	}
+	if (!encontrado) {
+		cout << "Nombre no encontrado.\n";
+	}
 }
