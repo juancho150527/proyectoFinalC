@@ -347,7 +347,7 @@ void guardarDatos(datos nuevoUsuario, datos dato[]) {
 }
 
 bool validacionAsiento(int nAsiento, int nVuelo, datos dato[]) {
-	for (int i=0; i<10000; i++) {
+	for (int i=0; i<1500; i++) {
 		if (dato[i].nAsiento==nAsiento && dato[i].nVuelo==nVuelo && dato[i].libre) {
 			return true;
 			break;
@@ -357,13 +357,12 @@ bool validacionAsiento(int nAsiento, int nVuelo, datos dato[]) {
 }//Funcion para validar si el asiento ya esta reservado
 
 int buscarCedula(long long cedula, datos dato[]) {
-	int cantidadDatos = 1500;
-	for (int i=0; i<cantidadDatos; i++) {
-		if (dato[i].cedula==cedula) {
-			return i;
-		}//if
-	}//for
-	return -1;
+	for (int i = 0; i < 1500; i++) {
+        if (dato[i].cedula == cedula) {
+            return i;
+        }
+    }
+    return -1;
 }//busca la cedula en el arreglo datos y retorna su indice o -1 si no la encuentra
 
 void pantallaCentrada(const string& texto, int anchura = 160) {
@@ -429,29 +428,23 @@ int vueloExiste(datos dato[]) {
 }
 
 vector<int> asientosDisponibles(int nVuelo, datos dato[]) {
-	vector<int> asientos;
-	for (int i = 0; i < 150; ++i) {
-		asientos.push_back(i + 1); // Inicializa con nÃºmeros de asiento del 1 al 150
-	}
-	for (int i = 0; i < 1500; ++i) {
-		if (dato[i].nVuelo == nVuelo && dato[i].libre) {
-			asientos[i] = i; // libres
-		}
-	}
-	return asientos;
+	vector<int> disponibles;
+    for (int i = 0; i < 1500; ++i) {
+        if (dato[i].nVuelo == nVuelo && dato[i].libre) {
+            disponibles.push_back(dato[i].nAsiento);
+        }
+    }
+    return disponibles;
 }
 
 vector<int> asientosOcupados(int nVuelo, datos dato[]) {
-	vector<int> asientos;
-	for (int i = 0; i < 150; ++i) {
-		asientos.push_back(0); // Inicializa con 0 indicando no ocupado
-	}
-	for (int i = 0; i < 1500; ++i) {
-		if (dato[i].nVuelo == nVuelo && !dato[i].libre) {
-			asientos[i] = i + 1; // ocupados
-		}
-	}
-	return asientos;
+	vector<int> ocupados;
+    for (int i = 0; i < 1500; ++i) {
+        if (dato[i].nVuelo == nVuelo && !dato[i].libre) {
+            ocupados.push_back(dato[i].nAsiento);
+        }
+    }
+    return ocupados;
 }
 
 void cancelarViaje(datos dato[]) {
@@ -590,47 +583,55 @@ void asientosOcpEspecificos(datos dato[]) {
 
 void consultarDatosAsiento(datos dato[], int nVuelo) {
 	int nAsiento;
-	pantallaCentrada("Consultar Datos de Asiento", 160);
-	cout << "Ingrese el numero de asiento: ";
-	recibirTipoDatoEntero(nAsiento);
-	int indice = nVuelo * 150 + (nAsiento - 1); // Calcular el Ã­ndice basado en nVuelo y nAsiento
-	if (indice == 0) {
-		cout << "Cedula no encontrada. No se puede consultar los datos del asiento.\n";
-		return;
-	} else {
-		cout << "Datos del Asiento:\n";
-		cout << "Nombre: " << dato[indice].nombre << endl;
-		cout << "Edad: " << dato[indice].edad << endl;
-		cout << "Sexo: " << dato[indice].sexo << endl;
-		cout << "Cedula: " << dato[indice].cedula << endl;
-		cout << "Email: " << dato[indice].email << endl;
-		cout << "Telefono: " << dato[indice].telefono << endl;
-		cout << "Numero de Vuelo: " << dato[indice].nVuelo << endl;
-		cout << "Numero de Asiento: " << dato[indice].nAsiento << endl;
-	}
+    pantallaCentrada("Consultar Datos de Asiento", 160);
+    cout << "Ingrese el numero de asiento: ";
+    recibirTipoDatoEntero(nAsiento);
+
+    int indice = -1;
+    for (int i = 0; i < 1500; i++) {
+        if (dato[i].nVuelo == nVuelo && dato[i].nAsiento == nAsiento) {
+            indice = i;
+            break;
+        }
+    }
+
+    if (indice == -1 || dato[indice].cedula == 0) {
+        cout << "Asiento no encontrado o vacio.\n";
+        return;
+    }
+
+    cout << "Datos del Asiento:\n";
+    cout << "Nombre: " << dato[indice].nombre << endl;
+    cout << "Edad: " << dato[indice].edad << endl;
+    cout << "Sexo: " << dato[indice].sexo << endl;
+    cout << "Cedula: " << dato[indice].cedula << endl;
+    cout << "Email: " << dato[indice].email << endl;
+    cout << "Telefono: " << dato[indice].telefono << endl;
+    cout << "Numero de Vuelo: " << dato[indice].nVuelo << endl;
+    cout << "Numero de Asiento: " << dato[indice].nAsiento << endl;
 }
 
 void listarPasajeros(datos dato[]) {
 	pantallaCentrada("Lista de Pasajeros", 160);
-	int nVuelo;
-	cout << "Ingrese el numero de vuelo para listar los pasajeros: ";
-	recibirTipoDatoEntero(nVuelo);
-	system("cls");
-	cout << "Pasajeros en el vuelo " << nVuelo << ":\n";
-	subrayar();
-	cout << "Nombre\tEdad\tSexo\tCedula\tEmail\tTelefono\tAsiento\n";
-	subrayar();
-	for (int i = 0; i < 10000; ++i) {
-		if (dato[i].nVuelo == nVuelo && !dato[i].libre) {
-			cout << dato[i].nombre << "\t"
-				 << dato[i].edad << "\t"
-				 << dato[i].sexo << "\t"
-				 << dato[i].cedula << "\t"
-				 << dato[i].email << "\t"
-				 << dato[i].telefono << "\t"
-				 << dato[i].nAsiento << "\n";
-		}
-	}
+    int nVuelo;
+    cout << "Ingrese el numero de vuelo para listar los pasajeros: ";
+    recibirTipoDatoEntero(nVuelo);
+    system("cls");
+    cout << "Pasajeros en el vuelo " << nVuelo << ":\n";
+    subrayar();
+    cout << "Nombre\tEdad\tSexo\tCedula\tEmail\tTelefono\tAsiento\n";
+    subrayar();
+    for (int i = 0; i < 1500; ++i) {
+        if (dato[i].nVuelo == nVuelo && !dato[i].libre) {
+            cout << dato[i].nombre << "\t"
+                 << dato[i].edad << "\t"
+                 << dato[i].sexo << "\t"
+                 << dato[i].cedula << "\t"
+                 << dato[i].email << "\t"
+                 << dato[i].telefono << "\t"
+                 << dato[i].nAsiento << "\n";
+        }
+    }
 }
 
 void busquedaAvanzada(datos dato[]) {
@@ -667,24 +668,25 @@ void busquedaAvanzada(datos dato[]) {
 
 void busquedaPorCedula(datos dato[]) {
 	long long cedula;
-	pantallaCentrada("Busqueda por Cedula", 160);
-	cout << "Ingrese la cedula a buscar: ";
-	recibirTipoDatoLong(cedula);
-	int indice = buscarCedula(cedula, dato);
-	if (indice == 0) {
-		cout << "Cedula no encontrada.\n";
-		return;
-	} else {
-		cout << "Datos del Pasajero:\n";
-		cout << "Nombre: " << dato[indice].nombre << endl;
-		cout << "Edad: " << dato[indice].edad << endl;
-		cout << "Sexo: " << dato[indice].sexo << endl;
-		cout << "Cedula: " << dato[indice].cedula << endl;
-		cout << "Email: " << dato[indice].email << endl;
-		cout << "Telefono: " << dato[indice].telefono << endl;
-		cout << "Numero de Vuelo: " << dato[indice].nVuelo << endl;
-		cout << "Numero de Asiento: " << dato[indice].nAsiento << endl;
-	}
+    pantallaCentrada("Busqueda por Cedula", 160);
+    cout << "Ingrese la cedula a buscar: ";
+    recibirTipoDatoLong(cedula);
+
+    int indice = buscarCedula(cedula, dato);
+    if (indice == -1) {
+        cout << "Cedula no encontrada.\n";
+        return;
+    }
+
+    cout << "Datos del Pasajero:\n";
+    cout << "Nombre: " << dato[indice].nombre << endl;
+    cout << "Edad: " << dato[indice].edad << endl;
+    cout << "Sexo: " << dato[indice].sexo << endl;
+    cout << "Cedula: " << dato[indice].cedula << endl;
+    cout << "Email: " << dato[indice].email << endl;
+    cout << "Telefono: " << dato[indice].telefono << endl;
+    cout << "Numero de Vuelo: " << dato[indice].nVuelo << endl;
+    cout << "Numero de Asiento: " << dato[indice].nAsiento << endl;
 }
 
 void busquedaPorNombre(datos dato[]) {
