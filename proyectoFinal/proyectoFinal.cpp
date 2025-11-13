@@ -8,7 +8,7 @@ struct datos {
     string nombre;
     int edad;
     string sexo;
-    long cedula;
+    long long cedula;
     string email;
     long long telefono;
     int nVuelo;
@@ -16,7 +16,7 @@ struct datos {
     bool libre;
 };
 
-// Declaraciones reorganizadas según el orden de definición
+// Declaraciones reorganizadas segÃºn el orden de definiciÃ³n
 void colorTexto(int color);
 const int anchuraConsola = 160;
 void cargarArreglo(datos dato[]);
@@ -29,10 +29,10 @@ bool verificarTipoDatoString(string pal);
 string recibirTipoDatoString(string& pal);
 void teclaPresionada();
 string recibirEmail();
-void crearViaje(datos dato[]);
-void guardarDatos(datos dato[]);
+void crearViaje(int nVuelo, datos dato[]);
+void guardarDatos(datos nuevoUsuario, datos dato[]);
 bool validacionAsiento(int nAsiento, int nVuelo, datos dato[]);
-bool buscarCedula(long cedula, datos dato[], int cantidadDatos);
+int buscarCedula(long long cedula, datos dato[]);
 void pantallaCentrada(const string& texto, int anchura);
 void validarNombre(string& nombre);
 int guardar(datos dato[], datos nuevoUsuario);
@@ -49,11 +49,14 @@ void cantAsientosOcupadosvariosVuelos(datos dato[]);
 void asientosDispEspecificos(datos dato[]);
 void asientosOcpEspecificos(datos dato[]);
 void consultarDatosAsiento(datos dato[], int nVuelo);
-
+void listarPasajeros(datos dato[]);
+void busquedaAvanzada(datos dato[]);
+void busquedaPorCedula(datos dato[]);
+void busquedaPorNombre(datos dato[]);
 
 void colorTexto(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
-}// Funci�n para cambiar el color del texto
+}// Funciï¿½n para cambiar el color del texto
 
 void cargarArreglo (datos dato[]) {
 	ifstream archivo;
@@ -76,7 +79,7 @@ void cargarArreglo (datos dato[]) {
 		archivo >> dato[contador].libre;
 		contador+=1;
 		}//while
-			if (archivo.fail()){ break;
+			if (archivo.fail()){ 
 			contador+=1;
 		}//while
 	}//else
@@ -132,9 +135,10 @@ int main() {
 		system("cls");
 		cout << "Vuelo no encontrado. Intente de nuevo.\n";
 		system("pause");
+		system("cls");
 		nVuelo = vueloExiste(dato);
 	}
-	menuPrincipal(dato);
+	menuPrincipal(dato, nVuelo);
 	guardarArreglo(dato);
 	return 0;
 }
@@ -158,7 +162,7 @@ void menuPrincipal(datos dato[], int nVuelo) {
 		
 		switch(opcion) {
 			case 1:
-				crearViaje(dato);
+				crearViaje(nVuelo, dato);
 				break;
 			case 2:
 				cancelarViaje(dato);
@@ -222,7 +226,7 @@ long long recibirTipoDatoLong(long long& num) {
 
 bool verificarTipoDatoString(string pal) {
 	if (pal.empty()) { //.empty devuelve true o false si la variable esta vacia
-		cout << "El campo no puede estar vac�o.\n";
+		cout << "El campo no puede estar vacï¿½o.\n";
 		return false;
 	}//if
 	for (int i=0; i< pal.size(); i++) {
@@ -236,7 +240,7 @@ bool verificarTipoDatoString(string pal) {
 
 string recibirTipoDatoString(string& pal) {
 	do {
-		fflush(stdin);
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		getline(cin, pal);
 		teclaPresionada();
 	} while (!verificarTipoDatoString(pal));
@@ -248,6 +252,7 @@ void teclaPresionada() {
 }
 
 string recibirEmail() {
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 	static const std::regex patronEmail(R"(^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$)");
 	string email;
 	while (true) {
@@ -256,7 +261,7 @@ string recibirEmail() {
 		if (regex_match(email, patronEmail)) {
 			return email;
 		} else {
-			cout << "Correo electrónico no válido. Intente de nuevo: ";
+			cout << "Correo electrÃ³nico no vÃ¡lido. Intente de nuevo: ";
 		}
 	}
 	
@@ -285,7 +290,7 @@ void crearViaje(int nVuelo, datos dato[]) {
 void guardarDatos(datos nuevoUsuario, datos dato[]) {
 	
 	//nombre
-	fflush(stdin);
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 	cout<<"Ingrese su nombre completo--> ";
 	recibirTipoDatoString(nuevoUsuario.nombre);
 	validarNombre(nuevoUsuario.nombre);
@@ -293,13 +298,13 @@ void guardarDatos(datos nuevoUsuario, datos dato[]) {
 	//cedula
 	cout<<"Ingrese su numero de cedula--> ";
 	recibirTipoDatoLong(nuevoUsuario.cedula);
-	while (buscarCedula(nuevoUsuario.cedula, dato)==0) {
+	while (buscarCedula(nuevoUsuario.cedula, dato) !=-1) {
 		cout<<"La cedula ya esta registrada, ingrese otra cedula--> ";
 		recibirTipoDatoLong(nuevoUsuario.cedula);
 	}//while
 
 	//sexo
-	fflush(stdin);
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 	cout<<"Ingrese su sexo--> ";
 	recibirTipoDatoString(nuevoUsuario.sexo);
 
@@ -308,7 +313,7 @@ void guardarDatos(datos nuevoUsuario, datos dato[]) {
 	recibirTipoDatoEntero(nuevoUsuario.edad);
 
 	//email
-	fflush(stdin);
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 	cout<<"Ingrese su email--> ";
 	nuevoUsuario.email = recibirEmail();
 	
@@ -333,6 +338,7 @@ void guardarDatos(datos nuevoUsuario, datos dato[]) {
 					<< nuevoUsuario.nAsiento << ""
 					<< nuevoUsuario.libre << "\n";
 			archivo.close();
+			system("pause");
 		}
 	} else {
 		cout << "No hay espacio disponible para nuevos registros.\n";
@@ -342,7 +348,7 @@ void guardarDatos(datos nuevoUsuario, datos dato[]) {
 
 bool validacionAsiento(int nAsiento, int nVuelo, datos dato[]) {
 	for (int i=0; i<10000; i++) {
-		if (dato[i].nAsiento==nAsiento && dato[i].nVuelo==nVuelo) {
+		if (dato[i].nAsiento==nAsiento && dato[i].nVuelo==nVuelo && dato[i].libre) {
 			return true;
 			break;
 		}//if
@@ -350,23 +356,24 @@ bool validacionAsiento(int nAsiento, int nVuelo, datos dato[]) {
 	return false;
 }//Funcion para validar si el asiento ya esta reservado
 
-int buscarCedula(long cedula, datos dato[], int cantidadDatos=1500) {
+int buscarCedula(long long cedula, datos dato[]) {
+	int cantidadDatos = 1500;
 	for (int i=0; i<cantidadDatos; i++) {
 		if (dato[i].cedula==cedula) {
 			return i;
 		}//if
 	}//for
-	return 0;
-}//busca la cedula en el arreglo datos y retorna su indice o 0 si no la encuentra
+	return -1;
+}//busca la cedula en el arreglo datos y retorna su indice o -1 si no la encuentra
 
 void pantallaCentrada(const string& texto, int anchura = 160) {
     int relleno = (anchura - texto.size()) / 2; // Calcula espacios para centrar
     if (relleno > 0) {
         cout << string(relleno, ' ') << texto << endl;
     } else {
-        cout << texto << endl; // Si la l�nea es m�s larga, solo imprime
+        cout << texto << endl; // Si la lï¿½nea es mï¿½s larga, solo imprime
     }
-}// Funci�n para centrar texto en consola
+}// Funciï¿½n para centrar texto en consola
 
 void validarNombre(string& nombre){
 	for (int i=0; i<nombre.size();i++){
@@ -377,13 +384,13 @@ void validarNombre(string& nombre){
 }//Guarda en nombre con espacios reemplazados por guiones bajos
 
 int guardar(datos dato[], datos nuevoUsuario) {
-	for (int i=0; i<10000; i++) {
+	for (int i=0; i<1500; i++) {
 		if (dato[i].cedula == 0) { // Asumiendo que cedula 0 indica espacio libre
 			dato[i].libre = false;
 			dato[i] = nuevoUsuario;
 			cout<<"Datos guardados exitosamente.\n";
 			teclaPresionada();
-			return i; // Retorna el �ndice donde se guardaron los datos
+			return i; // Retorna el ï¿½ndice donde se guardaron los datos
 		}//if
 	}//for
 	return -1; // Indica que no hubo espacio disponible
@@ -391,14 +398,14 @@ int guardar(datos dato[], datos nuevoUsuario) {
 
 bool validarCapacidadVuelo(int nVuelo, datos dato[], int maxAsientos = 150) {
     int contador = 0;
-    for (int i = 0; i < 10000; ++i) {
-        // Considera registro válido/ocupado cuando existe una cédula distinta de 0
+    for (int i = 0; i < 1500; ++i) {
+        // Considera registro vÃ¡lido/ocupado cuando existe una cÃ©dula distinta de 0
         if (dato[i].nVuelo == nVuelo && dato[i].cedula != 0) {
             contador++;
-            if (contador >= maxAsientos) return false; // ya alcanzó el máximo
+            if (contador >= maxAsientos) return false; // ya alcanzÃ³ el mÃ¡ximo
         }
     }
-    return true; // todavía hay espacio (< maxAsientos)
+    return true; // todavÃ­a hay espacio (< maxAsientos)
 }
 
 int vueloExiste(datos dato[]) {
@@ -418,15 +425,15 @@ int vueloExiste(datos dato[]) {
 			return nVuelo; // El vuelo existe 
 		}
 	}
-	return 0; // No se encontró ningún registro para ese vuelo
+	return 0; // No se encontrÃ³ ningÃºn registro para ese vuelo
 }
 
 vector<int> asientosDisponibles(int nVuelo, datos dato[]) {
 	vector<int> asientos;
 	for (int i = 0; i < 150; ++i) {
-		asientos.push_back(i + 1); // Inicializa con números de asiento del 1 al 150
+		asientos.push_back(i + 1); // Inicializa con nÃºmeros de asiento del 1 al 150
 	}
-	for (int i = 0; i < 10000; ++i) {
+	for (int i = 0; i < 1500; ++i) {
 		if (dato[i].nVuelo == nVuelo && dato[i].libre) {
 			asientos[i] = i; // libres
 		}
@@ -439,7 +446,7 @@ vector<int> asientosOcupados(int nVuelo, datos dato[]) {
 	for (int i = 0; i < 150; ++i) {
 		asientos.push_back(0); // Inicializa con 0 indicando no ocupado
 	}
-	for (int i = 0; i < 10000; ++i) {
+	for (int i = 0; i < 1500; ++i) {
 		if (dato[i].nVuelo == nVuelo && !dato[i].libre) {
 			asientos[i] = i + 1; // ocupados
 		}
@@ -448,13 +455,15 @@ vector<int> asientosOcupados(int nVuelo, datos dato[]) {
 }
 
 void cancelarViaje(datos dato[]) {
-	long cedula;
+	long long cedula;
+	system("cls");
 	pantallaCentrada("Eliminar Cuenta", 160);
 	cout << "Ingrese su numero de cedula para cancelar la reserva: ";
 	recibirTipoDatoLong(cedula);
 	int indice = buscarCedula(cedula, dato);
-	if (indice == 0) {
+	if (dato[indice].cedula == 0) {
 		cout << "Cedula no encontrada. No se puede cancelar la reserva.\n";
+		system("pause");
 		return;
 	} else {
 		dato[indice].nombre = "";
@@ -467,6 +476,7 @@ void cancelarViaje(datos dato[]) {
 		dato[indice].nAsiento = 0; // Limpiar el asiento
 		dato[indice].libre = true; // Marcar como libre
 		pantallaCentrada("Reserva eliminada correctamente!", 160);
+		system("pause");
 	}
 }
 
@@ -520,7 +530,7 @@ void consutas_reportes(datos dato[], int nVuelo) {
 
 void cantAsientosDisponibles(int nVuelo, datos dato[]) {
 	int contador = 0;
-	for (int i=0; i<10000; i++) {
+	for (int i=0; i<1500; i++) {
 		if (dato[i].nVuelo==nVuelo && dato[i].libre) {
 			contador+=1;
 		}//if
@@ -583,7 +593,7 @@ void consultarDatosAsiento(datos dato[], int nVuelo) {
 	pantallaCentrada("Consultar Datos de Asiento", 160);
 	cout << "Ingrese el numero de asiento: ";
 	recibirTipoDatoEntero(nAsiento);
-	int indice = nVuelo * 150 + (nAsiento - 1); // Calcular el índice basado en nVuelo y nAsiento
+	int indice = nVuelo * 150 + (nAsiento - 1); // Calcular el Ã­ndice basado en nVuelo y nAsiento
 	if (indice == 0) {
 		cout << "Cedula no encontrada. No se puede consultar los datos del asiento.\n";
 		return;
@@ -656,7 +666,7 @@ void busquedaAvanzada(datos dato[]) {
 }
 
 void busquedaPorCedula(datos dato[]) {
-	long cedula;
+	long long cedula;
 	pantallaCentrada("Busqueda por Cedula", 160);
 	cout << "Ingrese la cedula a buscar: ";
 	recibirTipoDatoLong(cedula);
