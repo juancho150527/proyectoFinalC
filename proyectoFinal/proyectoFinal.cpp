@@ -22,7 +22,7 @@ const int anchuraConsola = 160;
 void cargarArreglo(datos dato[]);
 void guardarArreglo(datos dato[]);
 void subrayar();
-void menuPrincipal(datos dato[]);
+void menuPrincipal(datos dato[], int nVuelo);
 int recibirTipoDatoEntero(int& num);
 long long recibirTipoDatoLong(long long& num);
 bool verificarTipoDatoString(string pal);
